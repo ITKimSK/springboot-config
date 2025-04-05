@@ -1,0 +1,69 @@
+spring:
+  boot:
+    admin:
+      client:
+        enable: false
+  security:
+    oauth2:
+      client:
+        provider:
+          keycloak:
+            issuer-uri: http://host.docker.internal:8082/realms/selmag
+            user-name-attribute: preferred_username
+        registration:
+          keycloak:
+            client-id: customer-app
+            client-secret: HmRCUXRrJEkeLbP3bIJhVcZhcyv9v4zk
+            scope:
+              - openid
+              - view_catalogue
+          metrics:
+            provider: keycloak
+            client-id: customer-app-metrics-client
+            client-secret: E9ZpOkcU6LBitl4gEcWlR1DyTH7iuONN
+            authorization-grant-type: client_credentials
+            scope:
+              - metrics_server
+          discovery:
+            provider: keycloak
+            client-id: customer-app
+            client-secret: HmRCUXRrJEkeLbP3bIJhVcZhcyv9v4zk
+            authorization-grant-type: client_credentials
+            scope:
+              - discovery
+      resourceserver:
+        jwt:
+          issuer-uri: http://host.docker.internal:8082/realms/selmag
+logging:
+  level:
+    org:
+      springframework:
+        web: DEBUG
+selmag:
+  services:
+    catalogue:
+      uri: lb://selmag-catalogue-service
+    feedback:
+      uri: lb://selmag-feedback-service
+management:
+  health:
+    livenessstate:
+      enabled: true
+    readinessstate:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+  zipkin:
+    tracing:
+      endpoint: http://host.docker.internal:9411/api/v2/spans
+  tracing:
+    sampling:
+      probability: 1.0
+eureka:
+  client:
+    service-url:
+      defaultZone: http://host.docker.internal:8761/eureka/
+  instance:
+    prefer-ip-address: true

@@ -1,0 +1,75 @@
+spring:
+  boot:
+    admin:
+      client:
+        enabled: false
+  cloud:
+    gateway:
+      routes:
+        - id: catalogue-service-route
+          uri: lb://selmag-catalogue-service
+          predicates:
+            - Host=*catalogue.api.selm.ag.192.168.0.115.nip.io*
+        - id: feedback-service-route
+          uri: lb://selmag-feedback-service
+          predicates:
+            - Host=*feedback.api.selm.ag.192.168.0.115.nip.io*
+        - id: manager-app-route
+          uri: lb://selmag-manager-app
+          predicates:
+            - Host=*manager.selm.ag.192.168.0.115.nip.io*
+        - id: customer-app-route
+          uri: lb://selmag-customer-app
+          predicates:
+            - Host=*customer.selm.ag.192.168.0.115.nip.io*
+  security:
+    oauth2:
+      client:
+        provider:
+          keycloak:
+            issuer-uri: http://host.docker.internal:8082/realms/selmag
+        registration:
+          keycloak:
+            provider: keycloak
+            client-id: api-gateway
+            client-secret: 7axlj8uyuJ11EepLgpewmlRFl0WzXxEP
+            authorization-grant-type: client_credentials
+            scope:
+              - metrics_server
+          discovery:
+            provider: keycloak
+            client-id: api-gateway
+            client-secret: 7axlj8uyuJ11EepLgpewmlRFl0WzXxEP
+            authorization-grant-type: client_credentials
+            scope:
+              - discovery
+      resourceserver:
+        jwt:
+          issuer-uri: http://host.docker.internal:8082/realms/selmag
+
+management:
+  health:
+    livenessstate:
+      enabled: true
+    readinessstate:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+  zipkin:
+    tracing:
+      endpoint: http://host.docker.internal:9411/api/v2/spans
+  tracing:
+    sampling:
+      probability: 1.0
+
+eureka:
+  instance:
+    leaseRenewalIntervalInSeconds: 1
+    leaseExpirationDurationInSeconds: 1
+    hostname: 192.168.0.115
+  client:
+    service-url:
+      defaultZone: http://host.docker.internal:8761/eureka/
+    registryFetchIntervalSeconds: 1
